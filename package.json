@@ -1,10 +1,9 @@
 {
   "name": "@innobridge/llmbackendsdk",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A TypeScript library for LLM clients",
   "author": "yilengyao <innobridgetechnology@gmail.com>",
   "license": "InnoBridge",
-  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -35,6 +34,7 @@
     "prepublishOnly": "npm run verify"
   },
   "devDependencies": {
+    "@types/node": "^22.15.17",
     "rimraf": "^6.0.1",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
@@ -42,5 +42,8 @@
   },
   "engines": {
     "node": "^20.0.0 || >=22.0.0"
+  },
+  "dependencies": {
+    "path": "^0.12.7"
   }
 }

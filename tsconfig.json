@@ -6,7 +6,11 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "baseUrl": ".",
+    "paths": {
+          "@/*": ["src/*"],
+    }
   },
-  "include": ["src", "tsup.config.ts", "vitest.config.ts"]
+  "include": ["src/**/*", "tsup.config.ts", "vitest.config.ts"]
 }
