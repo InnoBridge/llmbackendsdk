@@ -20,7 +20,7 @@ npm install @innobridge/llmbackendsdk
 
 In you backend application
 ```
-import { api } from @innobridge/llmbackendsdk
+import { api } from "@innobridge/llmbackendsdk";
 
 
 const models = await api.getModels(<baseUrl>, <apiKey>);
