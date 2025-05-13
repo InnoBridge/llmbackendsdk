@@ -3,6 +3,14 @@
   "version": "0.0.1",
   "description": "A TypeScript library for LLM clients",
   "author": "yilengyao <innobridgetechnology@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InnoBridge/llmbackendsdk.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
   "license": "InnoBridge",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
