@@ -23,15 +23,7 @@ import {
     DELETE_MESSAGES_BY_CHAT_IDS
 } from '@/storage/queries';
 import { Chat, Message } from '@/models/storage/dto';
-
-type DatabaseConfiguration = PostgresConfiguration;
-
-interface PostgresConfiguration {
-    connectionString: string;
-    ssl: {
-        rejectUnauthorized: boolean;
-    };
-};
+import { PostgresConfiguration } from '@/models/storage/configuration';
 
 class PostgresClient implements DatabaseClient {
     private pool: Pool;
@@ -172,31 +164,29 @@ class PostgresClient implements DatabaseClient {
         try {
             await client.query('BEGIN');
             
+            // run queryWithClient to upsert chats in bulk
             if (chatsToSync.length > 0) {
-                // run queryWithClient to upsert chats in bulk
-                if (chatsToSync.length > 0) {
-                    // Prepare parameters for bulk upsert
-                    const chatIds = [];
-                    const userIds = [];
-                    const titles = [];
-                    const updatedAts = [];
-                    const deletedAts = [];
-                    
-                    for (const chat of chatsToSync) {
-                        chatIds.push(chat.chatId);
-                        userIds.push(chat.userId);
-                        titles.push(chat.title);
-                        updatedAts.push(chat.updatedAt);
-                        deletedAts.push(chat.deletedAt || null);
-                    }
-                    
-                    // Perform upsert with transaction client
-                    await this.queryWithClient(
-                        client, 
-                        UPSERT_CHATS_QUERY, 
-                        [chatIds, userIds, titles, updatedAts, deletedAts]
-                    );
+                // Prepare parameters for bulk upsert
+                const chatIds = [];
+                const userIds = [];
+                const titles = [];
+                const updatedAts = [];
+                const deletedAts = [];
+                
+                for (const chat of chatsToSync) {
+                    chatIds.push(chat.chatId);
+                    userIds.push(chat.userId);
+                    titles.push(chat.title);
+                    updatedAts.push(chat.updatedAt);
+                    deletedAts.push(chat.deletedAt || null);
                 }
+                
+                // Perform upsert with transaction client
+                await this.queryWithClient(
+                    client, 
+                    UPSERT_CHATS_QUERY, 
+                    [chatIds, userIds, titles, updatedAts, deletedAts]
+                );
             }
 
             if (chatsToDelete.length > 0) {
@@ -280,6 +270,5 @@ class PostgresClient implements DatabaseClient {
 
 export {
     PostgresClient,
-    DatabaseConfiguration,
     PostgresConfiguration
 };

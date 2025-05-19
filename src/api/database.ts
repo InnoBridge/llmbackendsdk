@@ -1,5 +1,6 @@
 import { DatabaseClient } from '@/storage/persistent/database_client';
-import { DatabaseConfiguration, PostgresClient } from '@/storage/persistent/postgres_client';
+import { PostgresClient } from '@/storage/persistent/postgres_client';
+import { DatabaseConfiguration } from '@/models/storage/configuration';
 import { Chat, Message } from '@/models/storage/dto';
 import { PoolClient } from 'pg';
 
