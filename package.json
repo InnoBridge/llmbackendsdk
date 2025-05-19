@@ -1,6 +1,6 @@
 {
   "name": "@innobridge/llmbackendsdk",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A TypeScript library for LLM clients",
   "author": "yilengyao <innobridgetechnology@gmail.com>",
   "repository": {
@@ -52,6 +52,8 @@
     "node": "^20.0.0 || >=22.0.0"
   },
   "dependencies": {
-    "path": "^0.12.7"
+    "@types/pg": "^8.15.2",
+    "path": "^0.12.7",
+    "pg": "^8.16.0"
   }
 }
