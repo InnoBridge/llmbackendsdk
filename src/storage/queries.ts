@@ -12,7 +12,7 @@ const UPDATE_SCHEMA_VERSION_QUERY =
 
 const CREATE_CHATS_TABLE_QUERY = 
     `CREATE TABLE IF NOT EXISTS chats (
-        id INTEGER PRIMARY KEY,
+        id TEXT PRIMARY KEY,
         user_id VARCHAR(255), /* removed REFERENCES users(id) ON DELETE CASCADE */
         title VARCHAR(255) NOT NULL,
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -22,8 +22,8 @@ const CREATE_CHATS_TABLE_QUERY =
 
 const CREATE_MESSAGES_TABLE_QUERY =
     `CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY,
-        chat_id INTEGER NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+        id TEXT PRIMARY KEY,
+        chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
         image_url TEXT,
         role VARCHAR(50) NOT NULL,
@@ -45,7 +45,7 @@ const COUNT_CHATS_BY_USER_ID_QUERY =
     `SELECT COUNT(*) as total 
      FROM chats c 
      WHERE c.user_id = $1
-     AND ($2::BIGINT IS NULL OR c.updated_at > to_timestamp($2::BIGINT/1000.0))`;
+     AND ($2::BIGINT IS NULL OR c.updated_at > to_timestamp($2::BIGINT/1000.0));`;
 
 const GET_CHATS_BY_USER_ID_QUERY = 
     `SELECT c.id, c.user_id, c.title, c.updated_at, c.deleted_at
@@ -70,7 +70,7 @@ const ADD_CHATS_QUERY =
         CASE WHEN deleted_at IS NULL THEN NULL 
              ELSE to_timestamp(deleted_at::BIGINT/1000.0) END
      FROM 
-        (SELECT UNNEST($1::integer[]) as id,
+        (SELECT UNNEST($1::text[]) as id,
                 UNNEST($2::varchar[]) as user_id,
                 UNNEST($3::varchar[]) as title,
                 UNNEST($4::BIGINT[]) as updated_at,
@@ -86,7 +86,7 @@ const UPSERT_CHATS_QUERY =
         CASE WHEN deleted_at IS NULL THEN NULL 
              ELSE to_timestamp(deleted_at::BIGINT/1000.0) END
      FROM 
-        (SELECT UNNEST($1::integer[]) as id,
+        (SELECT UNNEST($1::text[]) as id,
                 UNNEST($2::varchar[]) as user_id,
                 UNNEST($3::varchar[]) as title,
                 UNNEST($4::BIGINT[]) as updated_at,
@@ -99,7 +99,7 @@ const UPSERT_CHATS_QUERY =
         deleted_at = EXCLUDED.deleted_at;`;
 
 const DELETE_MESSAGES_BY_CHAT_IDS = 
-    `DELETE FROM messages WHERE chat_id = ANY($1)`;
+    `DELETE FROM messages WHERE chat_id = ANY($1::text[]);`;
 
 const RENAME_CHAT_QUERY =
     `UPDATE chats 
@@ -118,13 +118,13 @@ const COUNT_MESSAGES_BY_USER_ID_QUERY =
      FROM messages m
      JOIN chats c ON m.chat_id = c.id
      WHERE c.user_id = $1
-     AND ($2::BIGINT IS NULL OR m.created_at > to_timestamp($2::BIGINT/1000.0))`;
+     AND ($2::BIGINT IS NULL OR m.created_at > to_timestamp($2::BIGINT/1000.0));`;
 
 
 const GET_MESSAGES_BY_CHAT_IDS_QUERY =
     `SELECT id, chat_id, content, role, image_url, prompt, created_at
      FROM messages
-     WHERE chat_id = ANY($1)
+     WHERE chat_id = ANY($1::text[])
      ORDER BY created_at ASC;`;
 
 const GET_MESSAGES_BY_USER_ID_QUERY = 
@@ -132,7 +132,7 @@ const GET_MESSAGES_BY_USER_ID_QUERY =
      FROM messages m
      JOIN chats c ON m.chat_id = c.id
      WHERE c.user_id = $1
-     AND ($2::TIMESTAMP IS NULL OR m.created_at > $2)
+     AND ($2::BIGINT IS NULL OR m.created_at > to_timestamp($2::BIGINT/1000.0))
      ORDER BY m.created_at ASC
      LIMIT $3 OFFSET $4;`;
 
@@ -147,8 +147,8 @@ const ADD_MESSAGES_QUERY =
         image_url,
         prompt
      FROM 
-        (SELECT UNNEST($1::integer[]) as id,
-                UNNEST($2::integer[]) as chat_id,
+        (SELECT UNNEST($1::text[]) as id,
+                UNNEST($2::text[]) as chat_id,
                 UNNEST($3::text[]) as content,
                 UNNEST($4::varchar[]) as role,
                 UNNEST($5::BIGINT[]) as created_at,

@@ -103,7 +103,7 @@ class PostgresClient implements DatabaseClient {
         return parseInt(result.rows[0].total, 10);
     }
 
-    async addChat(chatId: number, title: string, userId: string, updatedAt: number, deletedAt?: number): Promise<void> {
+    async addChat(chatId: string, title: string, userId: string, updatedAt: number, deletedAt?: number): Promise<void> {
         await this.query(ADD_CHAT_QUERY, [chatId, userId, title, updatedAt, deletedAt || null]);
     }
 
@@ -155,7 +155,7 @@ class PostgresClient implements DatabaseClient {
      * @param chatsToDelete: list of chatIds that we use to delete messages by chatId
      * @returns void
      */
-    async syncChats(chatsToSync: Chat[], chatsToDelete: number[]): Promise<void> {
+    async syncChats(chatsToSync: Chat[], chatsToDelete: string[]): Promise<void> {
         if (chatsToSync.length === 0 && chatsToDelete.length === 0) {
             return;
         }
@@ -210,7 +210,7 @@ class PostgresClient implements DatabaseClient {
         return parseInt(result.rows[0].total, 10);
     };
 
-    async getMessagesByChatIds(chatIds: number[]): Promise<any[]> {
+    async getMessagesByChatIds(chatIds: string[]): Promise<any[]> {
         const result = await this.query(GET_MESSAGES_BY_CHAT_IDS_QUERY, [chatIds]);
         return result.rows;
     }
@@ -220,7 +220,7 @@ class PostgresClient implements DatabaseClient {
         return (await this.query(GET_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset])).rows;
     }
 
-    async addMessage(messageId: number, chatId: number, content: string, role: string, createdAt: number, imageUrl?: string, prompt?: string): Promise<void> {
+    async addMessage(messageId: string, chatId: string, content: string, role: string, createdAt: number, imageUrl?: string, prompt?: string): Promise<void> {
         await this.query(ADD_MESSAGE_QUERY, [messageId, chatId, content, role, createdAt, imageUrl || null, prompt || null]);
     }
 
@@ -255,11 +255,11 @@ class PostgresClient implements DatabaseClient {
         await this.query(ADD_MESSAGES_QUERY, [messageIds, chatIds, contents, roles, createdAts, imageUrls, prompts]);
     }
 
-    async renameChat(chatId: number, title: string, updatedAt: number): Promise<void> {
+    async renameChat(chatId: string, title: string, updatedAt: number): Promise<void> {
         await this.query(RENAME_CHAT_QUERY, [title, updatedAt, chatId]);
     }
 
-    async deleteChat(chatId: number): Promise<void> {
+    async deleteChat(chatId: string): Promise<void> {
         await this.query(DELETE_CHAT_QUERY, [chatId]);
     }
 

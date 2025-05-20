@@ -1,5 +1,5 @@
 interface Chat {
-    chatId: number;
+    chatId: string;
     title: string;
     userId: string;
     updatedAt: number;
@@ -7,8 +7,8 @@ interface Chat {
 };
 
 interface Message {
-    messageId: number;
-    chatId: number;
+    messageId: string;
+    chatId: string;
     content: string;
     role: string;
     createdAt: number;
