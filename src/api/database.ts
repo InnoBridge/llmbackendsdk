@@ -3,18 +3,20 @@ import { PostgresClient } from '@/storage/persistent/postgres_client';
 import { DatabaseConfiguration } from '@/models/storage/configuration';
 import { Chat, Message } from '@/models/storage/dto';
 import { PoolClient } from 'pg';
+import { register } from 'module';
 
 let databaseClient: DatabaseClient | null = null;
 
-const registerMigration = (fromVersion: number, migrationFn: (client: PoolClient) => Promise<void>): void => {
-    if (!isDatabaseClientSet()) {
-        throw new Error("Database client not initialized. Call initializeDatabase first.");
-    }
-    databaseClient?.registerMigration(fromVersion, migrationFn);
-};
-
-const initializeDatabase = async (config: DatabaseConfiguration): Promise<void> => {
+const initializeDatabase = async (
+    config: DatabaseConfiguration,
+    registerMigrations?: Map<number, (client: PoolClient) => Promise<void>> 
+): Promise<void> => {
     databaseClient = new PostgresClient(config);
+    if (registerMigrations) {
+        registerMigrations.forEach((migration, version) => {
+            databaseClient?.registerMigration(version, migration);
+        });
+    }
     await databaseClient.initializeDatabase();
 };
 
@@ -188,7 +190,6 @@ const shutdownDatabase = async (): Promise<void> => {
 };
 
 export {
-    registerMigration,
     initializeDatabase,
     query,
     queryWithClient,
