@@ -44,7 +44,7 @@ const countChatsByUserId = async (userId: string, updatedAfter?: number): Promis
     return await databaseClient!.countChatsByUserId(userId, updatedAfter);
 };
 
-const addChat = async (chatId: number, title: string, userId: string, updatedAt: number, deletedAt?: number): Promise<void> => {  
+const addChat = async (chatId: string, title: string, userId: string, updatedAt: number, deletedAt?: number): Promise<void> => {  
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
@@ -73,7 +73,7 @@ const syncChats = async (userId: string, chats: Chat[], updatedAt?: number): Pro
         return;
     }
     const chatsToSync: Chat[] = [];
-    const chatsToDelete: number[] = [];
+    const chatsToDelete: string[] = [];
     
     const dbChats = await databaseClient?.getChatsByUserId(userId, updatedAt);
     const dbChatsMap = new Map(dbChats?.map(chat => [chat.chatId, chat]));
@@ -129,8 +129,8 @@ const countMessagesByUserId = async (userId: string, updatedAfter?: number): Pro
 };
 
 const addMessage = async (
-    messageId: number, 
-    chatId: number, 
+    messageId: string, 
+    chatId: string, 
     content: string, 
     role: string,
     createdAt: number,
@@ -142,7 +142,7 @@ const addMessage = async (
     await databaseClient?.addMessage(messageId, chatId, content, role, createdAt, imageUrl, prompt);
 };
 
-const getMessagesByChatIds = async (chatIds: number[]): Promise<any[]> => {
+const getMessagesByChatIds = async (chatIds: string[]): Promise<any[]> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
@@ -168,14 +168,14 @@ const addMessages = async (messages: Message[]): Promise<void> => {
     await databaseClient?.addMessages(messages);
 }
 
-const renameChat = async (chatId: number, title: string, updatedAt: number): Promise<void> => {
+const renameChat = async (chatId: string, title: string, updatedAt: number): Promise<void> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
     await databaseClient?.renameChat(chatId, title, updatedAt);
 };
 
-const deleteChat = async (chatId: number): Promise<void> => {
+const deleteChat = async (chatId: string): Promise<void> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
