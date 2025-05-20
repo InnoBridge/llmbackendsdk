@@ -33,7 +33,7 @@ Install postgresql
 ```bash
 npm install pg @types/pg 
 ```
-in your applecation's main file where you start your express server.
+in your application's main file where you start your express server.
 
 i.e. `index.js`
 ```typescript
