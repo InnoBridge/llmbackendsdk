@@ -3,7 +3,6 @@ import { PostgresClient } from '@/storage/persistent/postgres_client';
 import { DatabaseConfiguration } from '@/models/storage/configuration';
 import { Chat, Message } from '@/models/storage/dto';
 import { PoolClient } from 'pg';
-import { register } from 'module';
 
 let databaseClient: DatabaseClient | null = null;
 
