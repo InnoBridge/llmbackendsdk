@@ -45,28 +45,39 @@ const COUNT_CHATS_BY_USER_ID_QUERY =
     `SELECT COUNT(*) as total 
      FROM chats c 
      WHERE c.user_id = $1
-     AND ($2::BIGINT IS NULL OR c.updated_at > to_timestamp($2::BIGINT/1000.0));`;
+     AND ($2::BIGINT IS NULL OR c.updated_at > to_timestamp($2::BIGINT/1000.0))
+     AND (
+        $3 IS FALSE OR  -- if $3 is false, this condition passes for all rows
+        ($3 IS TRUE AND c.deleted_at IS NULL)  -- if $3 is true, only include non-deleted chats
+     );`;
 
 const GET_CHATS_BY_USER_ID_QUERY = 
-    `SELECT c.id, c.user_id, c.title, c.updated_at, c.deleted_at
+    `SELECT c.id, c.user_id, c.title, c.updated_at, c.created_at, c.deleted_at
      FROM chats c 
      WHERE c.user_id = $1
      AND ($2::BIGINT IS NULL OR c.updated_at > to_timestamp($2::BIGINT/1000.0))
+     AND (
+        $5 IS FALSE OR  -- if $5 is false, this condition passes for all rows
+        ($5 IS TRUE AND c.deleted_at IS NULL)  -- if $5 is true, only include non-deleted chats
+     )
      ORDER BY c.updated_at DESC
      LIMIT $3 OFFSET $4;`;
 
 const ADD_CHAT_QUERY = 
-    `INSERT INTO chats (id, user_id, title, updated_at, deleted_at)
+    `INSERT INTO chats (id, user_id, title, updated_at, created_at, deleted_at)
      VALUES ($1, $2, $3, to_timestamp($4::BIGINT/1000.0), 
-            CASE WHEN $5::BIGINT IS NULL THEN NULL ELSE to_timestamp($5::BIGINT/1000.0) END);`;
+            CASE WHEN $5::BIGINT IS NULL THEN NOW() ELSE to_timestamp($5::BIGINT/1000.0) END,
+            CASE WHEN $6::BIGINT IS NULL THEN NULL ELSE to_timestamp($6::BIGINT/1000.0) END);`;
 
 const ADD_CHATS_QUERY = 
-    `INSERT INTO chats (id, user_id, title, updated_at, deleted_at)
+    `INSERT INTO chats (id, user_id, title, updated_at, created_at, deleted_at)
      SELECT 
         id, 
         user_id, 
         title, 
         to_timestamp(updated_at::BIGINT/1000.0),
+        CASE WHEN created_at IS NULL THEN NOW() 
+             ELSE to_timestamp(created_at::BIGINT/1000.0) END,
         CASE WHEN deleted_at IS NULL THEN NULL 
              ELSE to_timestamp(deleted_at::BIGINT/1000.0) END
      FROM 
@@ -74,15 +85,18 @@ const ADD_CHATS_QUERY =
                 UNNEST($2::varchar[]) as user_id,
                 UNNEST($3::varchar[]) as title,
                 UNNEST($4::BIGINT[]) as updated_at,
-                UNNEST($5::BIGINT[]) as deleted_at);`;
+                UNNEST($5::BIGINT[]) as created_at,
+                UNNEST($6::BIGINT[]) as deleted_at);`;
 
 const UPSERT_CHATS_QUERY = 
-    `INSERT INTO chats (id, user_id, title, updated_at, deleted_at)
+    `INSERT INTO chats (id, user_id, title, updated_at, created_at, deleted_at)
      SELECT 
         id, 
         user_id, 
         title, 
         to_timestamp(updated_at::BIGINT/1000.0),
+        CASE WHEN created_at IS NULL THEN NOW() 
+             ELSE to_timestamp(created_at::BIGINT/1000.0) END,
         CASE WHEN deleted_at IS NULL THEN NULL 
              ELSE to_timestamp(deleted_at::BIGINT/1000.0) END
      FROM 
@@ -90,7 +104,8 @@ const UPSERT_CHATS_QUERY =
                 UNNEST($2::varchar[]) as user_id,
                 UNNEST($3::varchar[]) as title,
                 UNNEST($4::BIGINT[]) as updated_at,
-                UNNEST($5::BIGINT[]) as deleted_at)
+                UNNEST($5::BIGINT[]) as created_at,
+                UNNEST($6::BIGINT[]) as deleted_at)
      ON CONFLICT (id) 
      DO UPDATE SET 
         user_id = EXCLUDED.user_id,
@@ -118,7 +133,11 @@ const COUNT_MESSAGES_BY_USER_ID_QUERY =
      FROM messages m
      JOIN chats c ON m.chat_id = c.id
      WHERE c.user_id = $1
-     AND ($2::BIGINT IS NULL OR m.created_at > to_timestamp($2::BIGINT/1000.0));`;
+     AND ($2::BIGINT IS NULL OR m.created_at > to_timestamp($2::BIGINT/1000.0))
+     AND (
+        $3 IS FALSE OR  -- if $3 is false, this condition passes for all rows
+        ($3 IS TRUE AND c.deleted_at IS NULL)  -- if $3 is true, only include non-deleted chats
+     );`;
 
 
 const GET_MESSAGES_BY_CHAT_IDS_QUERY =
@@ -133,6 +152,10 @@ const GET_MESSAGES_BY_USER_ID_QUERY =
      JOIN chats c ON m.chat_id = c.id
      WHERE c.user_id = $1
      AND ($2::BIGINT IS NULL OR m.created_at > to_timestamp($2::BIGINT/1000.0))
+     AND (
+        $5 IS FALSE OR  -- if $5 is false, this condition passes for all rows
+        ($5 IS TRUE AND c.deleted_at IS NULL)  -- if $5 is true, only include non-deleted chats
+     )
      ORDER BY m.created_at ASC
      LIMIT $3 OFFSET $4;`;
 

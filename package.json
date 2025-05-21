@@ -1,6 +1,6 @@
 {
   "name": "@innobridge/llmbackendsdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A TypeScript library for LLM clients",
   "author": "yilengyao <innobridgetechnology@gmail.com>",
   "repository": {
