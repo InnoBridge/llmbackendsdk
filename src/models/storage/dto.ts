@@ -3,6 +3,7 @@ interface Chat {
     title: string;
     userId: string;
     updatedAt: number;
+    createdAt?: number;
     deletedAt?: number;
 };
 

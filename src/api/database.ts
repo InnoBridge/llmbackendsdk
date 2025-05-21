@@ -37,18 +37,18 @@ const query = async (query: string, params?: any[]): Promise<any> => {
     return await databaseClient?.query(query, params);
 };
 
-const countChatsByUserId = async (userId: string, updatedAfter?: number): Promise<number> => {
+const countChatsByUserId = async (userId: string, updatedAfter?: number, excludeDeleted?: boolean): Promise<number> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
-    return await databaseClient!.countChatsByUserId(userId, updatedAfter);
+    return await databaseClient!.countChatsByUserId(userId, updatedAfter, excludeDeleted);
 };
 
-const addChat = async (chatId: string, title: string, userId: string, updatedAt: number, deletedAt?: number): Promise<void> => {  
+const addChat = async (chatId: string, title: string, userId: string, updatedAt: number, createdAt?: number, deletedAt?: number): Promise<void> => {  
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
-    await databaseClient?.addChat(chatId, title, userId, updatedAt, deletedAt);
+    await databaseClient?.addChat(chatId, title, userId, updatedAt, createdAt, deletedAt);
 };
 
 const addChats = async (chats: Chat[]): Promise<void> => {
@@ -58,11 +58,11 @@ const addChats = async (chats: Chat[]): Promise<void> => {
     await databaseClient?.addChats(chats);
 }
 
-const getChatsByUserId = async (userId: string, updatedAfter?: number, limit?: number, page?: number): Promise<Chat[]> => {
+const getChatsByUserId = async (userId: string, updatedAfter?: number, limit?: number, page?: number, excludeDeleted?: boolean): Promise<Chat[]> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
-    return await databaseClient!.getChatsByUserId(userId, updatedAfter, limit, page);
+    return await databaseClient!.getChatsByUserId(userId, updatedAfter, limit, page, excludeDeleted);
 };
 
 const syncChats = async (userId: string, chats: Chat[], updatedAt?: number): Promise<void> => {
@@ -121,11 +121,11 @@ const syncChats = async (userId: string, chats: Chat[], updatedAt?: number): Pro
     await databaseClient?.syncChats(chatsToSync, chatsToDelete);
 }
 
-const countMessagesByUserId = async (userId: string, updatedAfter?: number): Promise<number> => {
+const countMessagesByUserId = async (userId: string, updatedAfter?: number, excludeDeleted?: boolean): Promise<number> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
-    return await databaseClient!.countMessagesByUserId(userId, updatedAfter);
+    return await databaseClient!.countMessagesByUserId(userId, updatedAfter, excludeDeleted);
 };
 
 const addMessage = async (
@@ -149,11 +149,11 @@ const getMessagesByChatIds = async (chatIds: string[]): Promise<any[]> => {
     return await databaseClient!.getMessagesByChatIds(chatIds);
 };
 
-const getMessagesByUserId = async (userId: string, updatedAfter?: number, limit?: number, page?: number): Promise<any[]> => {
+const getMessagesByUserId = async (userId: string, updatedAfter?: number, limit?: number, page?: number, excludeDeleted?: boolean): Promise<any[]> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
-    return await databaseClient!.getMessagesByUserId(userId, updatedAfter, limit, page);
+    return await databaseClient!.getMessagesByUserId(userId, updatedAfter, limit, page, excludeDeleted);
 };
 
 /**

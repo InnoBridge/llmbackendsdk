@@ -98,13 +98,25 @@ class PostgresClient implements DatabaseClient {
         }
     }
 
-    async countChatsByUserId(userId: string, updatedAfter?: number): Promise<number> {
-        const result = await this.query(COUNT_CHATS_BY_USER_ID_QUERY, [userId, updatedAfter || null]);
+    async countChatsByUserId(userId: string, updatedAfter?: number, excludeDeleted: boolean = false): Promise<number> {
+        const result = await this.query(COUNT_CHATS_BY_USER_ID_QUERY, [userId, updatedAfter || null, excludeDeleted]);
         return parseInt(result.rows[0].total, 10);
     }
 
-    async addChat(chatId: string, title: string, userId: string, updatedAt: number, deletedAt?: number): Promise<void> {
-        await this.query(ADD_CHAT_QUERY, [chatId, userId, title, updatedAt, deletedAt || null]);
+    async addChat(
+        chatId: string, 
+        title: string, 
+        userId: string, 
+        updatedAt: number, 
+        createdAt?: number,
+        deletedAt?: number): Promise<void> {
+        await this.query(ADD_CHAT_QUERY, [
+            chatId, 
+            userId, 
+            title, 
+            updatedAt, 
+            createdAt || null,
+            deletedAt || null]);
     }
 
     async addChats(chats: Chat[]): Promise<void> {
@@ -116,6 +128,7 @@ class PostgresClient implements DatabaseClient {
         const userIds = [];
         const titles = [];
         const updatedAts = [];
+        const createdAts = [];
         const deletedAts = [];
         
         for (const chat of chats) {
@@ -123,21 +136,23 @@ class PostgresClient implements DatabaseClient {
             userIds.push(chat.userId);
             titles.push(chat.title);
             updatedAts.push(chat.updatedAt);  // Pass as numeric value
+            createdAts.push(chat.createdAt || null);  // Pass as numeric value or null
             deletedAts.push(chat.deletedAt || null);  // Pass as numeric value or null
         }
         
-        await this.query(ADD_CHATS_QUERY, [chatIds, userIds, titles, updatedAts, deletedAts]);
+        await this.query(ADD_CHATS_QUERY, [chatIds, userIds, titles, updatedAts, createdAts, deletedAts]);
     }
 
-    async getChatsByUserId(userId: string, updatedAfter?: number, limit: number = 20, page: number = 0): Promise<Chat[]> {
+    async getChatsByUserId(userId: string, updatedAfter?: number, limit: number = 20, page: number = 0, excludeDeleted = false): Promise<Chat[]> {
         const offset = page * limit;
-        const result = await this.query(GET_CHATS_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset]);
+        const result = await this.query(GET_CHATS_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset, excludeDeleted]);
      
         return result.rows.map((chat: any) => {
             const chatObject: any = {
                 chatId: chat.id,
                 userId: chat.user_id,
                 title: chat.title,
+                createdAt: chat.created_at ? Date.parse(chat.created_at.toISOString()) : null,
                 updatedAt: chat.updated_at ? Date.parse(chat.updated_at.toISOString()) : null
             };
         
@@ -171,6 +186,7 @@ class PostgresClient implements DatabaseClient {
                 const userIds = [];
                 const titles = [];
                 const updatedAts = [];
+                const createdAts = [];
                 const deletedAts = [];
                 
                 for (const chat of chatsToSync) {
@@ -178,6 +194,7 @@ class PostgresClient implements DatabaseClient {
                     userIds.push(chat.userId);
                     titles.push(chat.title);
                     updatedAts.push(chat.updatedAt);
+                    createdAts.push(chat.createdAt || null);
                     deletedAts.push(chat.deletedAt || null);
                 }
                 
@@ -185,7 +202,7 @@ class PostgresClient implements DatabaseClient {
                 await this.queryWithClient(
                     client, 
                     UPSERT_CHATS_QUERY, 
-                    [chatIds, userIds, titles, updatedAts, deletedAts]
+                    [chatIds, userIds, titles, updatedAts, createdAts, deletedAts]
                 );
             }
 
@@ -205,8 +222,8 @@ class PostgresClient implements DatabaseClient {
 
     }
 
-    async countMessagesByUserId(userId: string, updatedAfter?: number): Promise<number> {
-        const result = await this.query(COUNT_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null]);
+    async countMessagesByUserId(userId: string, updatedAfter?: number, excludeDeleted: boolean = false): Promise<number> {
+        const result = await this.query(COUNT_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, excludeDeleted]);
         return parseInt(result.rows[0].total, 10);
     };
 
@@ -215,9 +232,9 @@ class PostgresClient implements DatabaseClient {
         return result.rows;
     }
 
-    async getMessagesByUserId(userId: string, updatedAfter?: number, limit: number = 20, page: number = 0): Promise<any[]> {
+    async getMessagesByUserId(userId: string, updatedAfter?: number, limit: number = 20, page: number = 0, excludeDeleted: boolean = false): Promise<any[]> {
         const offset = page * limit;
-        return (await this.query(GET_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset])).rows;
+        return (await this.query(GET_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset, excludeDeleted])).rows;
     }
 
     async addMessage(messageId: string, chatId: string, content: string, role: string, createdAt: number, imageUrl?: string, prompt?: string): Promise<void> {
