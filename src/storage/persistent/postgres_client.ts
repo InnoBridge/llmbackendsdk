@@ -227,14 +227,37 @@ class PostgresClient implements DatabaseClient {
         return parseInt(result.rows[0].total, 10);
     };
 
-    async getMessagesByChatIds(chatIds: string[]): Promise<any[]> {
+    async getMessagesByChatIds(chatIds: string[]): Promise<Message[]> {
         const result = await this.query(GET_MESSAGES_BY_CHAT_IDS_QUERY, [chatIds]);
-        return result.rows;
-    }
+        return result.rows.map((message: any) => {
+            const messageObject: any = {
+                messageId: message.id,
+                chatId: message.chat_id,
+                content: message.content,
+                role: message.role,
+                createdAt: message.created_at ? Date.parse(message.created_at.toISOString()) : null,
+                imageUrl: message.image_url || null,
+                prompt: message.prompt || null
+            };
+            return messageObject as Message;
+        });
+    };
 
-    async getMessagesByUserId(userId: string, updatedAfter?: number, limit: number = 20, page: number = 0, excludeDeleted: boolean = false): Promise<any[]> {
+    async getMessagesByUserId(userId: string, updatedAfter?: number, limit: number = 20, page: number = 0, excludeDeleted: boolean = false): Promise<Message[]> {
         const offset = page * limit;
-        return (await this.query(GET_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset, excludeDeleted])).rows;
+        const result =  await this.query(GET_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset, excludeDeleted]);
+        return result.rows.map((message: any) => {
+            const messageObject: any = {
+                messageId: message.id,
+                chatId: message.chat_id,
+                content: message.content,
+                role: message.role,
+                createdAt: message.created_at ? Date.parse(message.created_at.toISOString()) : null,
+                imageUrl: message.image_url || null,
+                prompt: message.prompt || null
+            };
+            return messageObject as Message;
+        });
     }
 
     async addMessage(messageId: string, chatId: string, content: string, role: string, createdAt: number, imageUrl?: string, prompt?: string): Promise<void> {
