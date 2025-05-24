@@ -222,8 +222,8 @@ class PostgresClient implements DatabaseClient {
 
     }
 
-    async countMessagesByUserId(userId: string, updatedAfter?: number, excludeDeleted: boolean = false): Promise<number> {
-        const result = await this.query(COUNT_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, excludeDeleted]);
+    async countMessagesByUserId(userId: string, createdAfter?: number, excludeDeleted: boolean = false): Promise<number> {
+        const result = await this.query(COUNT_MESSAGES_BY_USER_ID_QUERY, [userId, createdAfter || null, excludeDeleted]);
         return parseInt(result.rows[0].total, 10);
     };
 

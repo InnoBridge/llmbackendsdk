@@ -11,7 +11,7 @@ interface DatabaseClient {
     addChats(chats: Chat[]): Promise<void>;
     getChatsByUserId(userId: string, updatedAfter?: number, limit?: number, page?: number, excludeDeleted?: boolean): Promise<Chat[]>;
     syncChats(chatsToSync: Chat[], chatsToDelete: string[]): Promise<void>;
-    countMessagesByUserId(userId: string, updatedAfter?: number, excludeDeleted?: boolean): Promise<number>;
+    countMessagesByUserId(userId: string, createdAfter?: number, excludeDeleted?: boolean): Promise<number>;
     addMessage(
         messageId: string, 
         chatId: string, 
