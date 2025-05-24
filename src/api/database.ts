@@ -149,11 +149,11 @@ const getMessagesByChatIds = async (chatIds: string[]): Promise<any[]> => {
     return await databaseClient!.getMessagesByChatIds(chatIds);
 };
 
-const getMessagesByUserId = async (userId: string, updatedAfter?: number, limit?: number, page?: number, excludeDeleted?: boolean): Promise<any[]> => {
+const getMessagesByUserId = async (userId: string, createdAfter?: number, limit?: number, page?: number, excludeDeleted?: boolean): Promise<Message[]> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
-    return await databaseClient!.getMessagesByUserId(userId, updatedAfter, limit, page, excludeDeleted);
+    return await databaseClient!.getMessagesByUserId(userId, createdAfter, limit, page, excludeDeleted);
 };
 
 /**

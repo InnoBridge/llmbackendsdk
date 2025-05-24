@@ -14,7 +14,6 @@ import * as usage from '@/models/response/usage';
 import * as enums from '@/models/enums';
 import * as generateImageRequest from '@/models/request/generate_image_request';
 import * as imageResponse from '@/models/response/image_response';
-import * as sqllite from '@/models/sqllite';
 import * as databaseConfiguration from '@/models/storage/configuration';
 import * as databaseDto from '@/models/storage/dto';
 
@@ -35,7 +34,6 @@ export {
     enums,
     generateImageRequest,
     imageResponse,
-    sqllite,
     databaseConfiguration,
     databaseDto
 };

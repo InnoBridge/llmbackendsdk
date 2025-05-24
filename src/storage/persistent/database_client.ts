@@ -22,7 +22,7 @@ interface DatabaseClient {
         prompt?: string): Promise<void>;
     addMessages(messages: Message[]): Promise<void>;
     getMessagesByChatIds(chatIds: string[]): Promise<Message[]>;
-    getMessagesByUserId(userId: string, updatedAfter?: number, limit?: number, page?: number, excludeDeleted?: boolean): Promise<Message[]>;
+    getMessagesByUserId(userId: string, createdAfter?: number, limit?: number, page?: number, excludeDeleted?: boolean): Promise<Message[]>;
     renameChat(chatId: string, title: string, updatedAt: number): Promise<void>;
     deleteChat(chatId: string): Promise<void>;
     shutdown(): Promise<void>;
