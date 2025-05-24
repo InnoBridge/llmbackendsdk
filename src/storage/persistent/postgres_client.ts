@@ -243,9 +243,9 @@ class PostgresClient implements DatabaseClient {
         });
     };
 
-    async getMessagesByUserId(userId: string, updatedAfter?: number, limit: number = 20, page: number = 0, excludeDeleted: boolean = false): Promise<Message[]> {
+    async getMessagesByUserId(userId: string, createdAfter?: number, limit: number = 20, page: number = 0, excludeDeleted: boolean = false): Promise<Message[]> {
         const offset = page * limit;
-        const result =  await this.query(GET_MESSAGES_BY_USER_ID_QUERY, [userId, updatedAfter || null, limit, offset, excludeDeleted]);
+        const result =  await this.query(GET_MESSAGES_BY_USER_ID_QUERY, [userId, createdAfter || null, limit, offset, excludeDeleted]);
         return result.rows.map((message: any) => {
             const messageObject: any = {
                 messageId: message.id,
