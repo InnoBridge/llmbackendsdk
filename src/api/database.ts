@@ -121,11 +121,11 @@ const syncChats = async (userId: string, chats: Chat[], updatedAt?: number): Pro
     await databaseClient?.syncChats(chatsToSync, chatsToDelete);
 }
 
-const countMessagesByUserId = async (userId: string, updatedAfter?: number, excludeDeleted?: boolean): Promise<number> => {
+const countMessagesByUserId = async (userId: string, createdAfter?: number, excludeDeleted?: boolean): Promise<number> => {
     if (!isDatabaseClientSet()) {
         throw new Error("Database client not initialized. Call initializeDatabase first.");
     }
-    return await databaseClient!.countMessagesByUserId(userId, updatedAfter, excludeDeleted);
+    return await databaseClient!.countMessagesByUserId(userId, createdAfter, excludeDeleted);
 };
 
 const addMessage = async (
